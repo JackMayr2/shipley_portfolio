@@ -73,9 +73,15 @@ Set up Storage security rules:
 rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
+    // Design images
     match /designs/{designId}/{fileName} {
       allow read: if true;
-      allow write: if false; // Admin writes handled server-side or with admin SDK
+      allow write: if true;
+    }
+    // Profile images
+    match /profile/{fileName} {
+      allow read: if true;
+      allow write: if true;
     }
   }
 }

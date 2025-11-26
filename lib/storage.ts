@@ -33,3 +33,7 @@ export function getImagePath(designId: string, fileName: string): string {
   return `designs/${designId}/${fileName}`;
 }
 
+export function getProfileImagePath(fileName: string): string {
+  return `profile/${fileName}`;
+}
+

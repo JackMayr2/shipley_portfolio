@@ -28,5 +28,6 @@ export interface SocialLinks {
 
 export interface ProfileData extends Profile {
   socialLinks?: SocialLinks;
+  profileImages?: string[]; // Array of image URLs for the carousel
 }
 
