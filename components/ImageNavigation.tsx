@@ -49,7 +49,7 @@ export default function ImageNavigation({ projectId, subsections }: ImageNavigat
     <div className="max-w-6xl mx-auto mb-12">
       <div className="relative h-48 md:h-64 bg-gray-100 rounded-lg overflow-hidden">
         {/* Diagonal divider lines using SVG */}
-        <svg className="absolute inset-0 w-full h-full pointer-events-none z-20" preserveAspectRatio="none">
+        <svg className="absolute inset-0 w-full h-full pointer-events-none z-30" preserveAspectRatio="none">
           {sortedSubsections.length === 2 && (
             <line
               x1="50%"
@@ -86,7 +86,7 @@ export default function ImageNavigation({ projectId, subsections }: ImageNavigat
             return (
               <div
                 key={subsection.id}
-                className="relative flex-1"
+                className="relative flex-1 overflow-hidden"
                 style={{ clipPath: getClipPath(index, sortedSubsections.length) }}
               >
                 <button
@@ -95,23 +95,29 @@ export default function ImageNavigation({ projectId, subsections }: ImageNavigat
                 >
                   {subsection.navigationImageUrl ? (
                     <>
-                      <Image
-                        src={subsection.navigationImageUrl}
-                        alt={subsection.title}
-                        fill
-                        className="object-cover"
-                        sizes="(max-width: 768px) 50vw, 33vw"
-                      />
-                      <div className="absolute inset-0 bg-black/40 group-hover:bg-black/30 transition-colors flex items-center justify-center">
-                        <span className="text-white text-xl md:text-2xl font-semibold drop-shadow-lg">
+                      <div className="absolute inset-0 w-full h-full z-0">
+                        <Image
+                          src={subsection.navigationImageUrl}
+                          alt={subsection.title || 'Navigation section'}
+                          fill
+                          className="object-cover"
+                          sizes="(max-width: 768px) 50vw, 33vw"
+                          priority={index === 0}
+                          unoptimized={false}
+                        />
+                      </div>
+                      <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/40 to-black/50 group-hover:from-black/40 group-hover:via-black/30 group-hover:to-black/40 transition-all duration-300 flex items-center justify-center z-10">
+                        <span className="text-white text-xl md:text-2xl font-semibold drop-shadow-2xl text-center px-4">
                           {subsection.title}
                         </span>
                       </div>
                     </>
                   ) : (
-                    <span className="text-xl md:text-2xl font-semibold text-gray-800 group-hover:text-gray-900 transition-colors">
-                      {subsection.title}
-                    </span>
+                    <div className="absolute inset-0 flex items-center justify-center z-10">
+                      <span className="text-xl md:text-2xl font-semibold text-gray-800 group-hover:text-gray-900 transition-colors">
+                        {subsection.title}
+                      </span>
+                    </div>
                   )}
                 </button>
               </div>

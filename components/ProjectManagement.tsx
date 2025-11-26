@@ -204,7 +204,8 @@ export default function ProjectManagement({ projects, onUpdate, onMessage }: Pro
       const cleanedProjects = removeUndefined(updatedProjects);
       await updateProfile({ projects: cleanedProjects });
       onUpdate();
-      onMessage('success', 'Subsection image uploaded successfully!');
+      const imageTypeName = type === 'navigation' ? 'Navigation' : type === 'header' ? 'Header' : 'Collage';
+      onMessage('success', `${imageTypeName} image uploaded successfully!`);
     } catch (error) {
       console.error('Subsection image upload error:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to upload image';
@@ -629,9 +630,12 @@ export default function ProjectManagement({ projects, onUpdate, onMessage }: Pro
                               <div className="mb-4">
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
                                   Navigation Image (for image navigation section)
+                                  {subsection.navigationImageUrl && (
+                                    <span className="ml-2 text-green-600 text-xs">✓ Image uploaded</span>
+                                  )}
                                 </label>
                                 {subsection.navigationImageUrl ? (
-                                  <div className="relative w-full h-32 mb-2 rounded overflow-hidden border-2 border-gray-200">
+                                  <div className="relative w-full h-32 mb-2 rounded overflow-hidden border-2 border-green-300 bg-green-50">
                                     <Image
                                       src={subsection.navigationImageUrl}
                                       alt="Navigation image"
@@ -639,13 +643,16 @@ export default function ProjectManagement({ projects, onUpdate, onMessage }: Pro
                                       className="object-cover"
                                       sizes="(max-width: 768px) 100vw, 50vw"
                                     />
+                                    <div className="absolute top-2 right-2 bg-green-600 text-white text-xs px-2 py-1 rounded">
+                                      Active
+                                    </div>
                                   </div>
                                 ) : (
                                   <div className="w-full h-32 mb-2 rounded bg-gray-100 flex items-center justify-center border-2 border-dashed border-gray-300">
                                     <p className="text-gray-400 text-sm">No navigation image</p>
                                   </div>
                                 )}
-                                <label className="cursor-pointer">
+                                <label className="cursor-pointer inline-block">
                                   <input
                                     type="file"
                                     accept="image/*"
@@ -653,10 +660,17 @@ export default function ProjectManagement({ projects, onUpdate, onMessage }: Pro
                                     disabled={uploadingSubsectionImage?.projectId === projectId && uploadingSubsectionImage.subsectionId === subsection.id && uploadingSubsectionImage.type === 'navigation'}
                                     className="hidden"
                                   />
-                                  <span className="inline-block bg-purple-600 text-white py-2 px-4 rounded-md hover:bg-purple-700 transition-colors text-sm">
+                                  <span className={`inline-block text-white py-2 px-4 rounded-md transition-colors text-sm ${
+                                    uploadingSubsectionImage?.projectId === projectId && uploadingSubsectionImage.subsectionId === subsection.id && uploadingSubsectionImage.type === 'navigation'
+                                      ? 'bg-purple-400 cursor-not-allowed'
+                                      : 'bg-purple-600 hover:bg-purple-700 cursor-pointer'
+                                  }`}>
                                     {uploadingSubsectionImage?.projectId === projectId && uploadingSubsectionImage.subsectionId === subsection.id && uploadingSubsectionImage.type === 'navigation' ? 'Uploading...' : subsection.navigationImageUrl ? 'Change Navigation Image' : 'Upload Navigation Image'}
                                   </span>
                                 </label>
+                                <p className="text-xs text-gray-500 mt-1">
+                                  This image will appear in the diagonal navigation section on the project page
+                                </p>
                               </div>
 
                               {/* Collage Images */}
