@@ -1,6 +1,8 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { Project } from '@/types';
+import { generateSlug } from '@/lib/utils';
 import Image from 'next/image';
 
 interface BioPrimaryContainersProps {
@@ -8,15 +10,15 @@ interface BioPrimaryContainersProps {
 }
 
 export default function BioPrimaryContainers({ projects }: BioPrimaryContainersProps) {
+  const router = useRouter();
+
   if (!projects || projects.length === 0) {
     return null;
   }
 
   const handleClick = (project: Project) => {
-    const element = document.getElementById(`project-${project.id}`);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
+    const slug = project.slug || generateSlug(project.title);
+    router.push(`/project/${slug}`);
   };
 
   // Sort by order if provided

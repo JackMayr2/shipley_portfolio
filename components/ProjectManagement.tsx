@@ -2,8 +2,9 @@
 
 import { useState } from 'react';
 import { Project, ProjectSubsection } from '@/types';
-import { uploadImage, getProjectImagePath, getProjectSubsectionImagePath } from '@/lib/storage';
+import { uploadImage, getProjectImagePath, getProjectSubsectionImagePath, getProjectNavigationImagePath } from '@/lib/storage';
 import { updateProfile } from '@/lib/firestore';
+import { generateSlug } from '@/lib/utils';
 import Image from 'next/image';
 
 interface ProjectManagementProps {
@@ -14,7 +15,7 @@ interface ProjectManagementProps {
 
 export default function ProjectManagement({ projects, onUpdate, onMessage }: ProjectManagementProps) {
   const [uploadingProjectImage, setUploadingProjectImage] = useState<{ projectId: string; type: 'thumbnail' | 'header' } | null>(null);
-  const [uploadingSubsectionImage, setUploadingSubsectionImage] = useState<{ projectId: string; subsectionId: string; type: 'header' | 'collage' } | null>(null);
+  const [uploadingSubsectionImage, setUploadingSubsectionImage] = useState<{ projectId: string; subsectionId: string; type: 'header' | 'collage' | 'navigation' } | null>(null);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [editingSubsection, setEditingSubsection] = useState<{ projectId: string; subsection: ProjectSubsection } | null>(null);
 
@@ -136,7 +137,7 @@ export default function ProjectManagement({ projects, onUpdate, onMessage }: Pro
     e: React.ChangeEvent<HTMLInputElement>,
     projectId: string,
     subsectionId: string,
-    type: 'header' | 'collage'
+    type: 'header' | 'collage' | 'navigation'
   ) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -157,7 +158,9 @@ export default function ProjectManagement({ projects, onUpdate, onMessage }: Pro
     try {
       const sanitizedFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
       const fileName = `${type}-${Date.now()}-${sanitizedFileName}`;
-      const imagePath = getProjectSubsectionImagePath(projectId, subsectionId, fileName);
+      const imagePath = type === 'navigation' 
+        ? getProjectNavigationImagePath(projectId, subsectionId, fileName)
+        : getProjectSubsectionImagePath(projectId, subsectionId, fileName);
       const imageUrl = await uploadImage(file, imagePath);
 
       const currentProjects = projects || [];
@@ -174,6 +177,8 @@ export default function ProjectManagement({ projects, onUpdate, onMessage }: Pro
         updatedSubsections = [...project.subsections];
         if (type === 'header') {
           updatedSubsections[subsectionIndex] = { ...updatedSubsections[subsectionIndex], headerImageUrl: imageUrl };
+        } else if (type === 'navigation') {
+          updatedSubsections[subsectionIndex] = { ...updatedSubsections[subsectionIndex], navigationImageUrl: imageUrl };
         } else {
           updatedSubsections[subsectionIndex] = {
             ...updatedSubsections[subsectionIndex],
@@ -185,6 +190,7 @@ export default function ProjectManagement({ projects, onUpdate, onMessage }: Pro
           id: subsectionId,
           title: '',
           headerImageUrl: type === 'header' ? imageUrl : undefined,
+          navigationImageUrl: type === 'navigation' ? imageUrl : undefined,
           images: type === 'collage' ? [imageUrl] : [],
           order: project.subsections.length,
         };
@@ -327,12 +333,13 @@ export default function ProjectManagement({ projects, onUpdate, onMessage }: Pro
       </p>
       <div className="bg-blue-50 border border-blue-200 rounded-md p-3 mb-4">
         <p className="text-sm font-semibold text-blue-900 mb-1">Recommended Dimensions:</p>
-        <p className="text-xs text-blue-700">
-          <strong>Project Thumbnail:</strong> 1200×900px (4:3 ratio)<br />
-          <strong>Header Graphic:</strong> 1920×600px (wide banner)<br />
-          <strong>Subsection Header:</strong> 1200×600px (2:1 ratio)<br />
-          <strong>Collage Images:</strong> Any size (will be displayed in grid with standard spacing)
-        </p>
+                  <p className="text-xs text-blue-700">
+                    <strong>Project Thumbnail:</strong> 1200×900px (4:3 ratio)<br />
+                    <strong>Header Graphic:</strong> 1920×600px (wide banner)<br />
+                    <strong>Subsection Header:</strong> 1200×600px (2:1 ratio)<br />
+                    <strong>Navigation Image:</strong> 1200×600px (2:1 ratio) - displayed in diagonal navigation section<br />
+                    <strong>Collage Images:</strong> Any size (will be displayed in grid with standard spacing)
+                  </p>
       </div>
 
       {[1, 2, 3].map((num) => {
@@ -358,11 +365,13 @@ export default function ProjectManagement({ projects, onUpdate, onMessage }: Pro
                 onSubmit={(e) => {
                   e.preventDefault();
                   const formData = new FormData(e.currentTarget);
+                  const title = (formData.get('title') as string) || '';
                   const project: Project = {
                     id: projectId,
                     imageUrl: editingProject.imageUrl || '',
                     headerGraphicUrl: editingProject.headerGraphicUrl,
-                    title: (formData.get('title') as string) || '',
+                    title,
+                    slug: editingProject.slug || generateSlug(title),
                     description: (formData.get('description') as string) || undefined,
                     subsections: editingProject.subsections || [],
                     order: num - 1,
@@ -379,6 +388,16 @@ export default function ProjectManagement({ projects, onUpdate, onMessage }: Pro
                     defaultValue={existingProject?.title || ''}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     required
+                    onChange={(e) => {
+                      // Auto-generate slug from title
+                      if (editingProject) {
+                        setEditingProject({
+                          ...editingProject,
+                          title: e.target.value,
+                          slug: generateSlug(e.target.value),
+                        });
+                      }
+                    }}
                   />
                 </div>
                 <div>
@@ -601,6 +620,40 @@ export default function ProjectManagement({ projects, onUpdate, onMessage }: Pro
                                   />
                                   <span className="inline-block bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors text-sm">
                                     {uploadingSubsectionImage?.projectId === projectId && uploadingSubsectionImage.subsectionId === subsection.id && uploadingSubsectionImage.type === 'header' ? 'Uploading...' : subsection.headerImageUrl ? 'Change Header' : 'Upload Header Image'}
+                                  </span>
+                                </label>
+                              </div>
+
+                              {/* Navigation Image */}
+                              <div className="mb-4">
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                  Navigation Image (for image navigation section)
+                                </label>
+                                {subsection.navigationImageUrl ? (
+                                  <div className="relative w-full h-32 mb-2 rounded overflow-hidden border-2 border-gray-200">
+                                    <Image
+                                      src={subsection.navigationImageUrl}
+                                      alt="Navigation image"
+                                      fill
+                                      className="object-cover"
+                                      sizes="(max-width: 768px) 100vw, 50vw"
+                                    />
+                                  </div>
+                                ) : (
+                                  <div className="w-full h-32 mb-2 rounded bg-gray-100 flex items-center justify-center border-2 border-dashed border-gray-300">
+                                    <p className="text-gray-400 text-sm">No navigation image</p>
+                                  </div>
+                                )}
+                                <label className="cursor-pointer">
+                                  <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={(e) => handleSubsectionImageUpload(e, projectId, subsection.id, 'navigation')}
+                                    disabled={uploadingSubsectionImage?.projectId === projectId && uploadingSubsectionImage.subsectionId === subsection.id && uploadingSubsectionImage.type === 'navigation'}
+                                    className="hidden"
+                                  />
+                                  <span className="inline-block bg-purple-600 text-white py-2 px-4 rounded-md hover:bg-purple-700 transition-colors text-sm">
+                                    {uploadingSubsectionImage?.projectId === projectId && uploadingSubsectionImage.subsectionId === subsection.id && uploadingSubsectionImage.type === 'navigation' ? 'Uploading...' : subsection.navigationImageUrl ? 'Change Navigation Image' : 'Upload Navigation Image'}
                                   </span>
                                 </label>
                               </div>

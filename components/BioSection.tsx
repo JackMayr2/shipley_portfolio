@@ -4,7 +4,6 @@ import { useState, useEffect, useRef } from 'react';
 import { ProfileData } from '@/types';
 import ImageCarousel from './ImageCarousel';
 import BioPrimaryContainers from './BioPrimaryContainers';
-import ProjectPage from './ProjectPage';
 
 interface BioSectionProps {
   profile: ProfileData | null;
@@ -128,11 +127,6 @@ export default function BioSection({ profile }: BioSectionProps) {
           )}
         </div>
       </section>
-
-      {/* Project Pages */}
-      {profile.projects && profile.projects.map((project) => (
-        <ProjectPage key={project.id} project={project} />
-      ))}
     </>
   );
 }

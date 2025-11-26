@@ -32,6 +32,7 @@ export interface ProjectSubsection {
   id: string;
   title: string;
   headerImageUrl?: string;
+  navigationImageUrl?: string; // Image for the navigation section
   images: string[]; // Array of image URLs for collage
   order?: number;
 }
@@ -40,6 +41,7 @@ export interface Project {
   id: string;
   imageUrl: string; // Thumbnail for bio container
   title: string;
+  slug?: string; // URL-friendly identifier for routing
   description?: string;
   headerGraphicUrl?: string; // Header graphic for project page
   subsections: ProjectSubsection[]; // 2-3 subsections (e.g., jerseys, social, organizational)

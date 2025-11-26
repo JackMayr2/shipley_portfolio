@@ -457,13 +457,6 @@ export default function AdminPanel() {
                   </div>
                 )}
               </div>
-
-              {/* Projects Management */}
-              <ProjectManagement
-                projects={profile?.projects || []}
-                onUpdate={loadData}
-                onMessage={(type, text) => setMessage({ type, text })}
-              />
               
               <button
                 type="submit"
@@ -472,6 +465,13 @@ export default function AdminPanel() {
                 Save Profile
               </button>
             </form>
+
+            {/* Projects Management - Outside form to avoid nesting */}
+            <ProjectManagement
+              projects={profile?.projects || []}
+              onUpdate={loadData}
+              onMessage={(type, text) => setMessage({ type, text })}
+            />
           </div>
         )}
 

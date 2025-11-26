@@ -7,10 +7,12 @@ import {
   deleteDoc, 
   query, 
   orderBy,
+  where,
   Timestamp 
 } from 'firebase/firestore';
 import { db } from './firebase';
-import { ProfileData, Design } from '@/types';
+import { ProfileData, Design, Project } from '@/types';
+import { generateSlug } from './utils';
 
 const PROFILE_COLLECTION = 'profile';
 const DESIGNS_COLLECTION = 'designs';
@@ -113,6 +115,27 @@ export async function deleteDesign(id: string): Promise<void> {
     await deleteDoc(designRef);
   } catch (error) {
     console.error('Error deleting design:', error);
+    throw error;
+  }
+}
+
+export async function getProjectBySlug(slug: string): Promise<Project | null> {
+  if (!db) {
+    throw new Error('Firebase not initialized. Please check your configuration.');
+  }
+  try {
+    const profile = await getProfile();
+    if (!profile || !profile.projects) {
+      return null;
+    }
+    
+    // Find project by slug, or by generated slug from title (for backwards compatibility)
+    const project = profile.projects.find(p => 
+      p.slug === slug || generateSlug(p.title) === slug
+    );
+    return project || null;
+  } catch (error) {
+    console.error('Error fetching project by slug:', error);
     throw error;
   }
 }

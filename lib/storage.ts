@@ -49,3 +49,7 @@ export function getProjectSubsectionImagePath(projectId: string, subsectionId: s
   return `projects/${projectId}/subsections/${subsectionId}/${fileName}`;
 }
 
+export function getProjectNavigationImagePath(projectId: string, subsectionId: string, fileName: string): string {
+  return `projects/${projectId}/navigation/${subsectionId}/${fileName}`;
+}
+
