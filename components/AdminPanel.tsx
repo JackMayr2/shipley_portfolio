@@ -452,6 +452,12 @@ export default function AdminPanel() {
                 <p className="text-sm text-gray-600 mb-4">
                   Upload multiple images to create a carousel in your bio section. Images will automatically transition every 5 seconds.
                 </p>
+                <div className="bg-blue-50 border border-blue-200 rounded-md p-3 mb-4">
+                  <p className="text-sm font-semibold text-blue-900 mb-1">Recommended Dimensions:</p>
+                  <p className="text-xs text-blue-700">
+                    <strong>Profile Carousel:</strong> 1920×1080px (16:9 ratio) or 2560×1440px. Landscape orientation works best for full-screen display.
+                  </p>
+                </div>
                 
                 {/* Upload New Image */}
                 <div className="mb-6">
@@ -513,6 +519,12 @@ export default function AdminPanel() {
                 <p className="text-sm text-gray-600 mb-4">
                   Upload up to 3 clickable photo containers that appear below the carousel. Each container can link to a URL, section, or modal.
                 </p>
+                <div className="bg-blue-50 border border-blue-200 rounded-md p-3 mb-4">
+                  <p className="text-sm font-semibold text-blue-900 mb-1">Recommended Dimensions:</p>
+                  <p className="text-xs text-blue-700">
+                    <strong>Bio Containers:</strong> 1200×900px (4:3 ratio) or 1600×1200px. Images will be displayed in a 4:3 aspect ratio container.
+                  </p>
+                </div>
                 
                 {[1, 2, 3].map((num) => {
                   const containerId = `container-${num}`;
@@ -541,7 +553,7 @@ export default function AdminPanel() {
                           className="space-y-3"
                         >
                           {existingContainer?.imageUrl && (
-                            <div className="relative aspect-video w-full mb-3 rounded overflow-hidden">
+                            <div className="relative aspect-[4/3] w-full mb-3 rounded overflow-hidden">
                               <Image
                                 src={existingContainer.imageUrl}
                                 alt="Container preview"
@@ -597,36 +609,41 @@ export default function AdminPanel() {
                             </button>
                           </div>
                         </form>
-                      ) : (
-                        <>
-                          {existingContainer?.imageUrl ? (
-                            <div className="relative aspect-video w-full mb-3 rounded overflow-hidden border-2 border-gray-200">
-                              <Image
-                                src={existingContainer.imageUrl}
-                                alt={existingContainer.title || `Container ${num}`}
-                                fill
-                                className="object-cover"
-                                sizes="(max-width: 768px) 100vw, 50vw"
-                              />
-                            </div>
                           ) : (
-                            <div className="aspect-video w-full mb-3 rounded bg-gray-100 flex items-center justify-center border-2 border-dashed border-gray-300">
-                              <p className="text-gray-400 text-sm">No image uploaded</p>
-                            </div>
-                          )}
-                          <div className="flex gap-2">
-                            <label className="flex-1 cursor-pointer">
-                              <input
-                                type="file"
-                                accept="image/*"
-                                onChange={(e) => handleBioContainerUpload(e, containerId)}
-                                disabled={uploadingBioContainer === containerId}
-                                className="hidden"
-                              />
-                              <span className="block w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors text-center">
-                                {uploadingBioContainer === containerId ? 'Uploading...' : existingContainer ? 'Change Image' : 'Upload Image'}
-                              </span>
-                            </label>
+                            <>
+                              {existingContainer?.imageUrl ? (
+                                <div className="relative aspect-[4/3] w-full mb-3 rounded overflow-hidden border-2 border-gray-200">
+                                  <Image
+                                    src={existingContainer.imageUrl}
+                                    alt={existingContainer.title || `Container ${num}`}
+                                    fill
+                                    className="object-cover"
+                                    sizes="(max-width: 768px) 100vw, 50vw"
+                                  />
+                                </div>
+                              ) : (
+                                <div className="aspect-[4/3] w-full mb-3 rounded bg-gray-100 flex items-center justify-center border-2 border-dashed border-gray-300">
+                                  <p className="text-gray-400 text-sm">No image uploaded</p>
+                                </div>
+                              )}
+                              <div className="bg-blue-50 border border-blue-200 rounded-md p-2 mb-3">
+                                <p className="text-xs text-blue-700">
+                                  <strong>Recommended:</strong> 1200×900px (4:3 ratio)
+                                </p>
+                              </div>
+                              <div className="flex gap-2">
+                                <label className="flex-1 cursor-pointer">
+                                  <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={(e) => handleBioContainerUpload(e, containerId)}
+                                    disabled={uploadingBioContainer === containerId}
+                                    className="hidden"
+                                  />
+                                  <span className="block w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors text-center">
+                                    {uploadingBioContainer === containerId ? 'Uploading...' : existingContainer ? 'Change Image' : 'Upload Image'}
+                                  </span>
+                                </label>
                             {existingContainer && (
                               <>
                                 <button

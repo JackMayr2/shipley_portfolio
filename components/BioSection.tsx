@@ -100,14 +100,7 @@ export default function BioSection({ profile }: BioSectionProps) {
         className="relative w-full min-h-screen bg-white"
         style={{ opacity: bioOpacity, transition: 'opacity 0.3s ease-out' }}
       >
-        {/* Bio Primary Containers */}
-        {profile.bioContainers && profile.bioContainers.length > 0 && (
-          <div className="pt-20 pb-12">
-            <BioPrimaryContainers containers={profile.bioContainers} />
-          </div>
-        )}
-
-        {/* Bio Text */}
+        {/* Bio Text - First */}
         {(profile.bio || profile.location) && (
           <div className="px-6 py-12 md:py-20">
             <div className="max-w-4xl mx-auto">
@@ -122,6 +115,13 @@ export default function BioSection({ profile }: BioSectionProps) {
                 )}
               </div>
             </div>
+          </div>
+        )}
+
+        {/* Bio Primary Containers - Below bio text */}
+        {profile.bioContainers && profile.bioContainers.length > 0 && (
+          <div className="pt-12 pb-20">
+            <BioPrimaryContainers containers={profile.bioContainers} />
           </div>
         )}
       </section>

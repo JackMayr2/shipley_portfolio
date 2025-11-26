@@ -105,6 +105,12 @@ export default function DesignUpload({ onUploadComplete }: DesignUploadProps) {
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Image
           </label>
+          <div className="bg-blue-50 border border-blue-200 rounded-md p-3 mb-3">
+            <p className="text-xs font-semibold text-blue-900 mb-1">Recommended Dimensions:</p>
+            <p className="text-xs text-blue-700">
+              <strong>Design Images:</strong> 1200×1200px (1:1 square ratio) or 1500×1500px. Images will be displayed in a square container.
+            </p>
+          </div>
           <input
             type="file"
             accept="image/*"
