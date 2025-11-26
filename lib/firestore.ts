@@ -126,13 +126,36 @@ export async function getProjectBySlug(slug: string): Promise<Project | null> {
   try {
     const profile = await getProfile();
     if (!profile || !profile.projects) {
+      console.log('No profile or projects found');
       return null;
     }
     
+    // Decode slug in case it's URL encoded
+    let decodedSlug = slug;
+    try {
+      decodedSlug = decodeURIComponent(slug).toLowerCase().trim();
+    } catch (e) {
+      decodedSlug = slug.toLowerCase().trim();
+    }
+    
     // Find project by slug, or by generated slug from title (for backwards compatibility)
-    const project = profile.projects.find(p => 
-      p.slug === slug || generateSlug(p.title) === slug
-    );
+    const project = profile.projects.find(p => {
+      if (!p.title) return false;
+      const projectSlug = (p.slug || generateSlug(p.title)).toLowerCase().trim();
+      const titleSlug = generateSlug(p.title).toLowerCase().trim();
+      return projectSlug === decodedSlug || titleSlug === decodedSlug;
+    });
+    
+    if (!project) {
+      console.log('Available projects:', profile.projects.map(p => ({
+        id: p.id,
+        title: p.title,
+        slug: p.slug || generateSlug(p.title || ''),
+        generatedSlug: generateSlug(p.title || '')
+      })));
+      console.log('Looking for slug:', decodedSlug);
+    }
+    
     return project || null;
   } catch (error) {
     console.error('Error fetching project by slug:', error);

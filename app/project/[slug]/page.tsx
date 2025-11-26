@@ -17,11 +17,21 @@ export default function ProjectRoute() {
   useEffect(() => {
     async function loadProject() {
       try {
-        const projectData = await getProjectBySlug(slug);
+        // Decode the slug in case it's URL encoded
+        let decodedSlug = slug;
+        try {
+          decodedSlug = decodeURIComponent(slug);
+        } catch (e) {
+          // If decoding fails, use the original slug
+          decodedSlug = slug;
+        }
+        
+        const projectData = await getProjectBySlug(decodedSlug);
         if (projectData) {
           setProject(projectData);
         } else {
-          setError('Project not found');
+          console.error('Project not found for slug:', decodedSlug);
+          setError(`Project not found for slug: ${decodedSlug}`);
         }
       } catch (err) {
         console.error('Error loading project:', err);
@@ -33,6 +43,9 @@ export default function ProjectRoute() {
     
     if (slug) {
       loadProject();
+    } else {
+      setLoading(false);
+      setError('No slug provided');
     }
   }, [slug]);
 

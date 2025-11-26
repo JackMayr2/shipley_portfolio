@@ -17,8 +17,16 @@ export default function BioPrimaryContainers({ projects }: BioPrimaryContainersP
   }
 
   const handleClick = (project: Project) => {
+    if (!project.title) {
+      console.error('Project has no title, cannot navigate');
+      return;
+    }
     const slug = project.slug || generateSlug(project.title);
-    router.push(`/project/${slug}`);
+    if (slug) {
+      router.push(`/project/${encodeURIComponent(slug)}`);
+    } else {
+      console.error('Could not generate slug for project:', project);
+    }
   };
 
   // Sort by order if provided

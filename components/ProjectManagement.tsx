@@ -76,7 +76,8 @@ export default function ProjectManagement({ projects, onUpdate, onMessage }: Pro
           id: projectId,
           imageUrl: type === 'thumbnail' ? imageUrl : '',
           headerGraphicUrl: type === 'header' ? imageUrl : undefined,
-          title: '',
+          title: `Project ${projectId.replace('project-', '')}`,
+          slug: generateSlug(`Project ${projectId.replace('project-', '')}`),
           subsections: [],
           order: currentProjects.length,
         };
