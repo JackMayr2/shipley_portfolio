@@ -9,7 +9,7 @@ export interface Profile {
 
 export interface Design {
   id: string;
-  title: string;
+  title?: string;
   description?: string;
   category?: string;
   imageUrl: string;

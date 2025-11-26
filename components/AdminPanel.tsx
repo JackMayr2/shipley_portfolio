@@ -329,7 +329,7 @@ export default function AdminPanel() {
                     <input
                       type="text"
                       name="title"
-                      defaultValue={editingDesign.title}
+                      defaultValue={editingDesign.title || ''}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
@@ -381,13 +381,15 @@ export default function AdminPanel() {
                       <div className="relative aspect-square w-full mb-3">
                         <Image
                           src={design.imageUrl}
-                          alt={design.title}
+                          alt={design.title || 'Design'}
                           fill
                           className="object-cover rounded"
                           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                         />
                       </div>
-                      <h4 className="font-semibold mb-1">{design.title}</h4>
+                      {design.title && (
+                        <h4 className="font-semibold mb-1">{design.title}</h4>
+                      )}
                       {design.category && (
                         <p className="text-sm text-gray-600 mb-2">{design.category}</p>
                       )}

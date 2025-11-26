@@ -57,14 +57,16 @@ export default function ProjectSection({ designs }: ProjectSectionProps) {
                     <div className="relative aspect-square w-full">
                       <Image
                         src={design.imageUrl}
-                        alt={design.title}
+                        alt={design.title || 'Design'}
                         fill
                         className="object-cover transition-transform duration-300 group-hover:scale-110"
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                       />
                     </div>
                     <div className="p-4 bg-white">
-                      <h4 className="font-semibold text-gray-900 mb-1">{design.title}</h4>
+                      {design.title && (
+                        <h4 className="font-semibold text-gray-900 mb-1">{design.title}</h4>
+                      )}
                       {design.description && (
                         <p className="text-sm text-gray-600 line-clamp-2">{design.description}</p>
                       )}

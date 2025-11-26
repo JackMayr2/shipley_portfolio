@@ -62,7 +62,7 @@ export default function DesignUpload({ onUploadComplete }: DesignUploadProps) {
       };
 
       // Create design document first to get ID
-      const designData: Omit<Design, 'id' | 'createdAt'> = {
+      const designData: Partial<Omit<Design, 'id' | 'createdAt'>> = {
         title: title || undefined,
         description: description || undefined,
         category: category || undefined,
