@@ -83,6 +83,11 @@ service firebase.storage {
       allow read: if true;
       allow write: if true;
     }
+    // Bio container images
+    match /bio-containers/{fileName} {
+      allow read: if true;
+      allow write: if true;
+    }
   }
 }
 ```

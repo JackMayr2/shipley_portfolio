@@ -26,8 +26,19 @@ export interface SocialLinks {
   website?: string;
 }
 
+export interface BioContainer {
+  id: string;
+  imageUrl: string;
+  title?: string;
+  description?: string;
+  linkUrl?: string;
+  linkType?: 'url' | 'section' | 'modal';
+  order?: number;
+}
+
 export interface ProfileData extends Profile {
   socialLinks?: SocialLinks;
   profileImages?: string[]; // Array of image URLs for the carousel
+  bioContainers?: BioContainer[]; // Array of bio primary containers (max 3)
 }
 

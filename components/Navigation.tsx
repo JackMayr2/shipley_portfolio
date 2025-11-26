@@ -9,25 +9,25 @@ export default function Navigation() {
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-40 bg-white/90 backdrop-blur-sm shadow-sm">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-transparent backdrop-blur-sm">
       <div className="max-w-6xl mx-auto px-6 py-4">
         <div className="flex justify-between items-center">
           <button
             onClick={() => scrollToSection('bio')}
-            className="text-xl font-bold text-gray-900 hover:text-gray-700 transition-colors"
+            className="text-xl font-bold text-white drop-shadow-lg hover:text-gray-200 transition-colors"
           >
             Portfolio
           </button>
           <div className="flex gap-6">
             <button
               onClick={() => scrollToSection('bio')}
-              className="text-gray-700 hover:text-gray-900 transition-colors"
+              className="text-white drop-shadow-lg hover:text-gray-200 transition-colors"
             >
               About
             </button>
             <button
               onClick={() => scrollToSection('projects')}
-              className="text-gray-700 hover:text-gray-900 transition-colors"
+              className="text-white drop-shadow-lg hover:text-gray-200 transition-colors"
             >
               Projects
             </button>

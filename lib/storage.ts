@@ -37,3 +37,7 @@ export function getProfileImagePath(fileName: string): string {
   return `profile/${fileName}`;
 }
 
+export function getBioContainerImagePath(fileName: string): string {
+  return `bio-containers/${fileName}`;
+}
+
