@@ -1,10 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { ProfileData, Design, BioContainer } from '@/types';
+import { ProfileData, Design } from '@/types';
 import { getProfile, updateProfile, getDesigns, updateDesign, deleteDesign } from '@/lib/firestore';
-import { deleteImage, uploadImage, getProfileImagePath, getBioContainerImagePath } from '@/lib/storage';
+import { deleteImage, uploadImage, getProfileImagePath } from '@/lib/storage';
 import DesignUpload from './DesignUpload';
+import ProjectManagement from './ProjectManagement';
 import Image from 'next/image';
 
 export default function AdminPanel() {
@@ -15,8 +16,6 @@ export default function AdminPanel() {
   const [editingDesign, setEditingDesign] = useState<Design | null>(null);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [uploadingProfileImage, setUploadingProfileImage] = useState(false);
-  const [uploadingBioContainer, setUploadingBioContainer] = useState<string | null>(null);
-  const [editingBioContainer, setEditingBioContainer] = useState<BioContainer | null>(null);
 
   useEffect(() => {
     loadData();
@@ -62,7 +61,9 @@ export default function AdminPanel() {
       title: (formData.get('title') as string) || undefined,
       bio: (formData.get('bio') as string) || undefined,
       email: (formData.get('email') as string) || undefined,
+      phone: (formData.get('phone') as string) || undefined,
       location: (formData.get('location') as string) || undefined,
+      location2: (formData.get('location2') as string) || undefined,
       socialLinks: {
         linkedin: (formData.get('linkedin') as string) || undefined,
         instagram: (formData.get('instagram') as string) || undefined,
@@ -179,89 +180,6 @@ export default function AdminPanel() {
     }
   };
 
-  const handleBioContainerUpload = async (e: React.ChangeEvent<HTMLInputElement>, containerId: string) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (!file.type.startsWith('image/')) {
-      setMessage({ type: 'error', text: 'Please select an image file' });
-      e.target.value = '';
-      return;
-    }
-
-    if (file.size > 10 * 1024 * 1024) {
-      setMessage({ type: 'error', text: 'Image size must be less than 10MB' });
-      e.target.value = '';
-      return;
-    }
-
-    setUploadingBioContainer(containerId);
-    try {
-      const sanitizedFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-      const fileName = `bio-container-${containerId}-${Date.now()}-${sanitizedFileName}`;
-      const imagePath = getBioContainerImagePath(fileName);
-      const imageUrl = await uploadImage(file, imagePath);
-
-      const currentContainers = profile?.bioContainers || [];
-      const containerIndex = currentContainers.findIndex(c => c.id === containerId);
-      
-      let updatedContainers: BioContainer[];
-      if (containerIndex >= 0) {
-        updatedContainers = [...currentContainers];
-        updatedContainers[containerIndex] = { ...updatedContainers[containerIndex], imageUrl };
-      } else {
-        updatedContainers = [...currentContainers, { id: containerId, imageUrl, order: currentContainers.length }];
-      }
-
-      await updateProfile({ bioContainers: updatedContainers });
-      await loadData();
-      setMessage({ type: 'success', text: 'Bio container image uploaded successfully!' });
-    } catch (error) {
-      console.error('Bio container upload error:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Failed to upload image';
-      setMessage({ type: 'error', text: `Upload failed: ${errorMessage}` });
-    } finally {
-      setUploadingBioContainer(null);
-      e.target.value = '';
-    }
-  };
-
-  const handleBioContainerUpdate = async (container: BioContainer) => {
-    try {
-      const currentContainers = profile?.bioContainers || [];
-      const containerIndex = currentContainers.findIndex(c => c.id === container.id);
-      
-      let updatedContainers: BioContainer[];
-      if (containerIndex >= 0) {
-        updatedContainers = [...currentContainers];
-        updatedContainers[containerIndex] = container;
-      } else {
-        updatedContainers = [...currentContainers, container];
-      }
-
-      await updateProfile({ bioContainers: updatedContainers });
-      await loadData();
-      setEditingBioContainer(null);
-      setMessage({ type: 'success', text: 'Bio container updated successfully!' });
-    } catch (error) {
-      setMessage({ type: 'error', text: 'Failed to update bio container' });
-    }
-  };
-
-  const handleBioContainerDelete = async (containerId: string) => {
-    if (!confirm('Are you sure you want to delete this bio container?')) return;
-
-    try {
-      const currentContainers = profile?.bioContainers || [];
-      const updatedContainers = currentContainers.filter(c => c.id !== containerId);
-
-      await updateProfile({ bioContainers: updatedContainers });
-      await loadData();
-      setMessage({ type: 'success', text: 'Bio container deleted successfully!' });
-    } catch (error) {
-      setMessage({ type: 'error', text: 'Failed to delete bio container' });
-    }
-  };
 
   if (loading) {
     return <div className="p-8 text-center">Loading...</div>;
@@ -372,6 +290,33 @@ export default function AdminPanel() {
                   name="location"
                   defaultValue={profile?.location || ''}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="e.g., New York, NY"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Location 2 (Open to Relocation)
+                </label>
+                <input
+                  type="text"
+                  name="location2"
+                  defaultValue={profile?.location2 || ''}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="e.g., Open to Relocation"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Phone
+                </label>
+                <input
+                  type="tel"
+                  name="phone"
+                  defaultValue={profile?.phone || ''}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="e.g., (555) 123-4567"
                 />
               </div>
               
@@ -513,166 +458,12 @@ export default function AdminPanel() {
                 )}
               </div>
 
-              {/* Bio Primary Containers */}
-              <div className="border-t pt-4 mt-6">
-                <h3 className="text-lg font-semibold mb-4">Bio Primary Containers</h3>
-                <p className="text-sm text-gray-600 mb-4">
-                  Upload up to 3 clickable photo containers that appear below the carousel. Each container can link to a URL, section, or modal.
-                </p>
-                <div className="bg-blue-50 border border-blue-200 rounded-md p-3 mb-4">
-                  <p className="text-sm font-semibold text-blue-900 mb-1">Recommended Dimensions:</p>
-                  <p className="text-xs text-blue-700">
-                    <strong>Bio Containers:</strong> 1200×900px (4:3 ratio) or 1600×1200px. Images will be displayed in a 4:3 aspect ratio container.
-                  </p>
-                </div>
-                
-                {[1, 2, 3].map((num) => {
-                  const containerId = `container-${num}`;
-                  const existingContainer = profile?.bioContainers?.find(c => c.id === containerId);
-                  
-                  return (
-                    <div key={containerId} className="mb-6 p-4 border border-gray-200 rounded-lg">
-                      <h4 className="text-md font-semibold mb-3">Container {num}</h4>
-                      
-                      {editingBioContainer?.id === containerId ? (
-                        <form
-                          onSubmit={(e) => {
-                            e.preventDefault();
-                            const formData = new FormData(e.currentTarget);
-                            const container: BioContainer = {
-                              id: containerId,
-                              imageUrl: editingBioContainer.imageUrl || '',
-                              title: (formData.get('title') as string) || undefined,
-                              description: (formData.get('description') as string) || undefined,
-                              linkUrl: (formData.get('linkUrl') as string) || undefined,
-                              linkType: (formData.get('linkType') as 'url' | 'section' | 'modal') || undefined,
-                              order: num - 1,
-                            };
-                            handleBioContainerUpdate(container);
-                          }}
-                          className="space-y-3"
-                        >
-                          {existingContainer?.imageUrl && (
-                            <div className="relative aspect-[4/3] w-full mb-3 rounded overflow-hidden">
-                              <Image
-                                src={existingContainer.imageUrl}
-                                alt="Container preview"
-                                fill
-                                className="object-cover"
-                                sizes="(max-width: 768px) 100vw, 50vw"
-                              />
-                            </div>
-                          )}
-                          <input
-                            type="text"
-                            name="title"
-                            placeholder="Title (optional)"
-                            defaultValue={existingContainer?.title || ''}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          />
-                          <textarea
-                            name="description"
-                            placeholder="Description (optional)"
-                            defaultValue={existingContainer?.description || ''}
-                            rows={2}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          />
-                          <select
-                            name="linkType"
-                            defaultValue={existingContainer?.linkType || 'url'}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          >
-                            <option value="url">External URL</option>
-                            <option value="section">Section (scroll to ID)</option>
-                            <option value="modal">Modal (coming soon)</option>
-                          </select>
-                          <input
-                            type="text"
-                            name="linkUrl"
-                            placeholder="Link URL or Section ID"
-                            defaultValue={existingContainer?.linkUrl || ''}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          />
-                          <div className="flex gap-2">
-                            <button
-                              type="submit"
-                              className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors"
-                            >
-                              Save
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => setEditingBioContainer(null)}
-                              className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400 transition-colors"
-                            >
-                              Cancel
-                            </button>
-                          </div>
-                        </form>
-                          ) : (
-                            <>
-                              {existingContainer?.imageUrl ? (
-                                <div className="relative aspect-[4/3] w-full mb-3 rounded overflow-hidden border-2 border-gray-200">
-                                  <Image
-                                    src={existingContainer.imageUrl}
-                                    alt={existingContainer.title || `Container ${num}`}
-                                    fill
-                                    className="object-cover"
-                                    sizes="(max-width: 768px) 100vw, 50vw"
-                                  />
-                                </div>
-                              ) : (
-                                <div className="aspect-[4/3] w-full mb-3 rounded bg-gray-100 flex items-center justify-center border-2 border-dashed border-gray-300">
-                                  <p className="text-gray-400 text-sm">No image uploaded</p>
-                                </div>
-                              )}
-                              <div className="bg-blue-50 border border-blue-200 rounded-md p-2 mb-3">
-                                <p className="text-xs text-blue-700">
-                                  <strong>Recommended:</strong> 1200×900px (4:3 ratio)
-                                </p>
-                              </div>
-                              <div className="flex gap-2">
-                                <label className="flex-1 cursor-pointer">
-                                  <input
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={(e) => handleBioContainerUpload(e, containerId)}
-                                    disabled={uploadingBioContainer === containerId}
-                                    className="hidden"
-                                  />
-                                  <span className="block w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors text-center">
-                                    {uploadingBioContainer === containerId ? 'Uploading...' : existingContainer ? 'Change Image' : 'Upload Image'}
-                                  </span>
-                                </label>
-                            {existingContainer && (
-                              <>
-                                <button
-                                  onClick={() => setEditingBioContainer(existingContainer)}
-                                  className="flex-1 bg-gray-600 text-white py-2 px-4 rounded-md hover:bg-gray-700 transition-colors"
-                                >
-                                  Edit Details
-                                </button>
-                                <button
-                                  onClick={() => handleBioContainerDelete(containerId)}
-                                  className="bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 transition-colors"
-                                >
-                                  Delete
-                                </button>
-                              </>
-                            )}
-                          </div>
-                          {existingContainer && (
-                            <div className="mt-2 text-sm text-gray-600">
-                              {existingContainer.title && <p><strong>Title:</strong> {existingContainer.title}</p>}
-                              {existingContainer.linkUrl && <p><strong>Link:</strong> {existingContainer.linkUrl}</p>}
-                            </div>
-                          )}
-                        </>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
+              {/* Projects Management */}
+              <ProjectManagement
+                projects={profile?.projects || []}
+                onUpdate={loadData}
+                onMessage={(type, text) => setMessage({ type, text })}
+              />
               
               <button
                 type="submit"

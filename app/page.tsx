@@ -1,27 +1,21 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { getProfile, getDesigns } from '@/lib/firestore';
-import { ProfileData, Design } from '@/types';
+import { getProfile } from '@/lib/firestore';
+import { ProfileData } from '@/types';
 import Navigation from '@/components/Navigation';
 import BioSection from '@/components/BioSection';
-import ProjectSection from '@/components/ProjectSection';
 import SocialLinks from '@/components/SocialLinks';
 
 export default function Home() {
   const [profile, setProfile] = useState<ProfileData | null>(null);
-  const [designs, setDesigns] = useState<Design[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadData() {
       try {
-        const [profileData, designsData] = await Promise.all([
-          getProfile(),
-          getDesigns(),
-        ]);
+        const profileData = await getProfile();
         setProfile(profileData);
-        setDesigns(designsData);
       } catch (error) {
         console.error('Error loading data:', error);
       } finally {
@@ -46,8 +40,7 @@ export default function Home() {
     <main className="min-h-screen">
       <Navigation />
       <BioSection profile={profile} />
-      <ProjectSection designs={designs} />
-      <SocialLinks socialLinks={profile?.socialLinks} />
+      <SocialLinks profile={profile} />
     </main>
   );
 }

@@ -88,6 +88,16 @@ service firebase.storage {
       allow read: if true;
       allow write: if true;
     }
+    // Project images (thumbnails and header graphics)
+    match /projects/{projectId}/{fileName} {
+      allow read: if true;
+      allow write: if true;
+    }
+    // Project subsection images (header images and collage images)
+    match /projects/{projectId}/subsections/{subsectionId}/{fileName} {
+      allow read: if true;
+      allow write: if true;
+    }
   }
 }
 ```

@@ -41,3 +41,11 @@ export function getBioContainerImagePath(fileName: string): string {
   return `bio-containers/${fileName}`;
 }
 
+export function getProjectImagePath(projectId: string, fileName: string): string {
+  return `projects/${projectId}/${fileName}`;
+}
+
+export function getProjectSubsectionImagePath(projectId: string, subsectionId: string, fileName: string): string {
+  return `projects/${projectId}/subsections/${subsectionId}/${fileName}`;
+}
+

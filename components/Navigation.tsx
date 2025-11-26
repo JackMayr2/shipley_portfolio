@@ -25,12 +25,6 @@ export default function Navigation() {
             >
               About
             </button>
-            <button
-              onClick={() => scrollToSection('projects')}
-              className="text-white drop-shadow-lg hover:text-gray-200 transition-colors"
-            >
-              Projects
-            </button>
           </div>
         </div>
       </div>

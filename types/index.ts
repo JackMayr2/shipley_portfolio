@@ -4,7 +4,9 @@ export interface Profile {
   title: string;
   bio: string;
   email?: string;
+  phone?: string;
   location?: string;
+  location2?: string; // For "Open to Relocation" or second location
 }
 
 export interface Design {
@@ -26,19 +28,27 @@ export interface SocialLinks {
   website?: string;
 }
 
-export interface BioContainer {
+export interface ProjectSubsection {
   id: string;
-  imageUrl: string;
-  title?: string;
+  title: string;
+  headerImageUrl?: string;
+  images: string[]; // Array of image URLs for collage
+  order?: number;
+}
+
+export interface Project {
+  id: string;
+  imageUrl: string; // Thumbnail for bio container
+  title: string;
   description?: string;
-  linkUrl?: string;
-  linkType?: 'url' | 'section' | 'modal';
+  headerGraphicUrl?: string; // Header graphic for project page
+  subsections: ProjectSubsection[]; // 2-3 subsections (e.g., jerseys, social, organizational)
   order?: number;
 }
 
 export interface ProfileData extends Profile {
   socialLinks?: SocialLinks;
   profileImages?: string[]; // Array of image URLs for the carousel
-  bioContainers?: BioContainer[]; // Array of bio primary containers (max 3)
+  projects?: Project[]; // Array of projects (replaces bioContainers)
 }
 
